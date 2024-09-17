@@ -14,7 +14,8 @@ with open("README.md", "r", encoding='UTF-8') as fh:
 info = sys.version_info
 requires = [
     'colorama',
-    'PyYAML'
+    'PyYAML',
+    'jinja2'
 ]
 setuptools.setup(
     name="xffasttest",
@@ -22,7 +23,7 @@ setuptools.setup(
     author="IMJIE",
     author_email="imjie@outlook.com",
     keywords=('xffasttest', 'playwright', 'WEB自动化'),
-    description="playwright 自动化框架",
+    description="playwright自动化框架",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/Jodeee/xffasttest",

@@ -19,28 +19,25 @@ class Logger:
         return cls._instance
     
     def __init__(self) -> None:
-
-        self.reports = ''
+        pass
 
     def __write(self, message: str) -> None:
         try:
-            self.log_path = os.path.join(self.reports, 'log.log')
+            self.log_path = os.path.join(self.reports, 'report.log')
             with open(self.log_path, 'a+', encoding='UTF-8') as f:
                 f.write(f'{message}\n')
         except:
             pass
         
-
-    def log_info(self, message: str, color: str = '') -> None:
+    def log_info(self, message: str, color: str = '', end = '\n') -> None:
 
         if not isinstance(message, str): message = str(message)
         date_info: str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S INFO :")
         if color:
-            print(date_info + color + message)
+            print(date_info + color + message, end=end)
         else:
-            print(date_info + message)
+            print(date_info + message, end=end)
         self.__write(date_info + message)
-
 
     def log_error(self, message: str, exit: bool = False) -> None:
 
@@ -50,11 +47,10 @@ class Logger:
         self.__write(date_error + message)
         if exit: os._exit(0)
 
-    
-    def log_print(self, message: str, color: str = '') -> None:
+    def log_print(self, message: str, color: str = '', end = '\n') -> None:
 
         if color:
-            print(color + message)
+            print(color + message, end=end)
         else:
-            print(message)
+            print(message, end=end)
         self.__write(message)

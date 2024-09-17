@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import sys
+import time
 import unittest
-
+from datetime import datetime
 from xffasttest.runner.test_result import TestResult
+from xffasttest.runner.test_reports import TestReports
 
 
 class TestRunner(unittest.TextTestRunner):
@@ -13,7 +15,8 @@ class TestRunner(unittest.TextTestRunner):
                  descriptions: bool = True,
                  verbosity: int = 1,
                  testresult = None,
-                 hook: dict = {}) -> None:
+                 hook: dict = {},
+                 reports: str = None) -> None:
         unittest.TextTestRunner.__init__(self)
 
         if testresult is None:
@@ -21,9 +24,10 @@ class TestRunner(unittest.TextTestRunner):
         else:
             self.testresult = testresult
         
-        self.result = self.testresult(stream = stream,
-                                      descriptions = descriptions,
-                                      verbosity = verbosity)
+        self.result = self.testresult(stream=stream,
+                                      descriptions=descriptions,
+                                      verbosity=verbosity)
+        self.result.reports = reports
         self.hook = hook
 
     def _setUpModule(self) -> None:
@@ -39,9 +43,18 @@ class TestRunner(unittest.TextTestRunner):
             raise e
 
     def run(self, test) -> object:
+        start_time = time.time()
         self._setUpModule()
         test(self.result)
         self._tearDownModule()
+        end_time = time.time()
+        dt1 = datetime.fromtimestamp(start_time)
+        dt2 = datetime.fromtimestamp(end_time)
+        self.result.duration = round((dt2 - dt1).total_seconds(), 2)
+
+        test_reports = TestReports(self.result)
+        test_reports.generate_reports()
+        
         return self.result
 
 

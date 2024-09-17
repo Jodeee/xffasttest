@@ -1,0 +1,8 @@
+/.idea
+/.vscode
+/.pyc
+/tests
+/reports
+/common
+/resource
+/*.yaml

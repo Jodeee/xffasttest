@@ -14,7 +14,6 @@ class FastTest:
         self._load_config()
         self.hook_func = self._load_hook(self.hook_path)
         self.tests_suite = self._load_tests(self.hook_func)
-        self.reports = ''
 
     def __setitem__(self, key, value) -> None:
         object.__setattr__(self, key, value)
@@ -35,21 +34,30 @@ class FastTest:
             self[_dir] = _path
             gvar[_dir] = _path
             sys.path.append(_path)
-
+        self.reports_assets = os.path.join(self.reports, 'src/assets')
+        
         # load config
         config_path = os.path.join(self.root, 'config.yaml')
         if not os.path.isfile(config_path):
             raise Exception(f'The file {config_path} does not exist.') 
         config = Utils.load_yaml(config_path)
+
         hook_path = config.hook
         self.hook_path = os.path.join(self.root, hook_path)
+        config.context['record_video_dir'] = self.reports_assets
         gvar.config = config
 
+        # laod data
+        data_path = os.path.join(self.root, 'data.yaml')
+        if os.path.isfile(data_path):
+            data = Utils.load_yaml(data_path)
+            gvar.data = data.get(config.env, {})
+          
         # laod reports
-        logger.reports = self.reports
         if os.path.exists(self.reports):
             shutil.rmtree(self.reports)
-        os.makedirs(self.reports)
+        os.makedirs(self.reports_assets)
+        logger.reports = self.reports
 
     def _import_module(self, file: str) -> tuple:
         file_name: str = os.path.basename(file)
@@ -79,10 +87,6 @@ class FastTest:
         for test_file in test_files:
             file_name, file_path, module = self._import_module(test_file)
             case_module = file_path.replace(f'{self.root}/', '')
-            report_path = os.path.join(self.reports, case_module)
-            if not os.path.exists(report_path):
-                os.makedirs(report_path)
-
             for name in dir(module):
                 test_case_ojb: type = getattr(module, name)
                 if not isinstance(test_case_ojb, type): continue
@@ -91,7 +95,7 @@ class FastTest:
                 test_case_ojb.case_info = Dict({
                     'file_name': file_name,
                     'case_module': case_module,
-                    'report_path': report_path,
+                    'reports_assets': self.reports_assets,
                     'reports': self.reports,
                     'set_up': hook_func.set_up,
                     'tear_down': hook_func.tear_down
@@ -102,5 +106,5 @@ class FastTest:
 
     def start(self) -> None:
         suite = unittest.TestSuite(tuple(self.tests_suite))
-        runner = TestRunner(hook = self.hook_func)
+        runner = TestRunner(hook = self.hook_func, reports = self.reports)
         runner.run(suite)

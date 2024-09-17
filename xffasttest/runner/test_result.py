@@ -1,8 +1,10 @@
+import os
 import sys
 import time
+import uuid
 import unittest
 import inspect
-
+from datetime import datetime
 from xffasttest.runner import CaseInfo
 from xffasttest.common import logger, Fore
 
@@ -30,24 +32,35 @@ class TestResult(unittest.TextTestResult):
         super(TestResult, self).stopTest(test)
 
         end_time = time.time()
+        dt1 = datetime.fromtimestamp( self.start_time)
+        dt2 = datetime.fromtimestamp(end_time)
+        duration  = round((dt2 - dt1).total_seconds(), 2)
         # test case source code
         test_method = getattr(test.__class__, test._testMethodName)
         case_source = inspect.getsource(test_method)
 
         case_info = CaseInfo()
+        case_desc = test._testMethodDoc.strip() if test._testMethodDoc else test._testMethodDoc
+        screenshot_path = os.path.relpath(test.screenshot_path, test.reports) if test.screenshot_path else test.screenshot_path
+        video_path = os.path.relpath(test.video_path, test.reports) if test.video_path else test.video_path
+
         case_info.set_attrs(
+            id =  str(uuid.uuid4()),
             reports = test.reports,
             file_name = test.file_name,
             case_module = test.case_module,
-            report_path = test.report_path,
+            reports_assets = test.reports_assets,
+            screenshot_path = screenshot_path,
+            video_path = video_path,
             case_name = test._testMethodName,
-            case_desc = test._testMethodDoc,
+            case_desc = case_desc,
             case_source = case_source,
             start_time = self.start_time,
             end_time = end_time,
-            elapsed_time = end_time - self.start_time,
+            duration = duration,
             status = self.result_status,
-            message = self.result_maessage
+            message = self.result_maessage,
+            request = test.request
         )
         self.result.append(case_info)
 

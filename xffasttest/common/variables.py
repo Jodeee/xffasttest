@@ -1,4 +1,6 @@
-class GlobalVariables(object):
+import copy
+
+class Variables(object):
 
     def __getattr__(self, name: str) -> object:
         try:
@@ -19,3 +21,12 @@ class GlobalVariables(object):
 
     def __setitem__(self, key: str, value: object) -> None:
         object.__setattr__(self, key, value)
+
+    
+    def __deepcopy__(self, memo):
+        cls = self.__class__
+        new_obj = cls.__new__(cls)
+        memo[id(self)] = new_obj
+        for k in self.__dict__.keys():
+            setattr(new_obj, k, copy.deepcopy(self[k]))
+        return new_obj

@@ -1,5 +1,5 @@
-from xffasttest.driver.driver import Driver
+from xffasttest.driver import driver
 
-driver = Driver()
+driver = driver.Driver()
 
 all = ['driver']

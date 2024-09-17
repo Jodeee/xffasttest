@@ -12,7 +12,10 @@ class TestCase(unittest.TestCase):
         self.reports = self.case_info.reports
         self.file_name = self.case_info.file_name
         self.case_module = self.case_info.case_module
-        self.report_path = self.case_info.report_path
+        self.reports_assets = self.case_info.reports_assets
+        self.screenshot_path = self.case_info.screenshot_path
+        self.video_path = self.case_info.video_path
+        self.request = self.case_info.request
 
     def run(self, result: unittest.TestResult) -> None:
         logger.log_info(f"******************* TestCase {self._testMethodName} Start *******************", Fore.GREEN)
@@ -24,7 +27,6 @@ class TestCase(unittest.TestCase):
         success: int = total - errors - failures - skipped
         logger.log_info(f"******************* Total: {total} Success: {success} Failed: {failures} "
                         f"Error: {errors} Skipped: {skipped} ********************", Fore.GREEN)
-
 
     def setUp(self) -> None:
         try:

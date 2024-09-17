@@ -18,7 +18,6 @@ class Utils:
                 if os.path.isfile(file_path): 
                     test_files.append(file_path)
         return test_files
-    
 
     @staticmethod
     def load_yaml(path) -> Dict:
