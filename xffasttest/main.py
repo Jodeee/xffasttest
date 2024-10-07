@@ -1,11 +1,12 @@
 
 import argparse
-from version import VERSION
-from fasttest import FastTest
+from xffasttest.version import VERSION
+from xffasttest.fasttest import FastTest
 
 def custom_method(args) -> None:
     if args.run:
-        FastTest().start()
+        fasttest = FastTest()
+        fasttest.start()
     elif args.init:
         pass
 

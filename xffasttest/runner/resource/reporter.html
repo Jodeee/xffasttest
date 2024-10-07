@@ -352,7 +352,11 @@
                         <!-- 下方文本内容 -->
                         <div class="text-content">
                             {% if case.message %}
-                                <p>错误信息:</p>
+                                {% if case.status == 3 %}
+                                    <p>跳过信息:</p>
+                                {% else %}
+                                    <p>错误信息:</p>
+                                {% endif %}
                                 <pre class="result_css_errorp">{{case.message.replace("\<", "《")}}</pre>
                             {% endif %}
                         <!-- 更多文本内容 -->

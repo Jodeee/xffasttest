@@ -6,3 +6,5 @@
 /common
 /resource
 /*.yaml
+/build
+/*egg-info

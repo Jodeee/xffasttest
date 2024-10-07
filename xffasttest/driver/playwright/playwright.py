@@ -1,9 +1,13 @@
 import time
+import platform
 from playwright.sync_api import sync_playwright
 from xffasttest.driver.playwright.request import Request
 
 DEFAULT_WINDOW = 'DEFAULT_WINDOW'
 NEW_WINDOW = 'NEW_WINDOW'
+
+SYSTEM_NAME = platform.system()
+
 
 class PlaywrightDriver(object):
 
@@ -16,7 +20,7 @@ class PlaywrightDriver(object):
         self._browser_contexts: dict = {}
         self.config: dict = {}
         self.request = Request()
-    
+
     def _create_browser(self, config: dict) -> object:
         browser_name = config.browser_name or 'chromium'
         headless = config.headless
@@ -26,8 +30,9 @@ class PlaywrightDriver(object):
                                                        downloads_path=downloads_path,
                                                        slow_mo=slow_mo)
         return browser
-        
+
     def _create_context(self, config: dict) -> object:
+        base_url = config.base_url
         ignore_https_errors = config.ignore_https_errors
         java_script_enabled = config.java_script_enabled
         bypass_csp = config.bypass_csp
@@ -36,14 +41,15 @@ class PlaywrightDriver(object):
         extra_http_headers = config.extra_http_headers
         record_video_dir = config.record_video_dir
         context = self._browser.new_context(ignore_https_errors=ignore_https_errors,
-                                           java_script_enabled=java_script_enabled,
-                                           bypass_csp=bypass_csp,
-                                           viewport=dict(viewport) if viewport else None,
-                                           locale=locale,
-                                           extra_http_headers=extra_http_headers,
-                                           record_video_dir=record_video_dir)
+                                            java_script_enabled=java_script_enabled,
+                                            bypass_csp=bypass_csp,
+                                            base_url=base_url,
+                                            viewport=dict(viewport) if viewport else None,
+                                            locale=locale,
+                                            extra_http_headers=extra_http_headers,
+                                            record_video_dir=record_video_dir)
         return context
-    
+
     def _check_elements(self, selector: str) -> bool:
         elements = self._browser_context.page.query_selector_all(selector)
         for element in elements:
@@ -53,7 +59,6 @@ class PlaywrightDriver(object):
         else:
             return False
         return True
-
 
     def _timed_polling(self, condition_func, selector: str, timeout=10000):
         start_time = time.time()
@@ -76,7 +81,7 @@ class PlaywrightDriver(object):
             self._browser_contexts.update({key: self._browser_context})
         else:
             self._browser_context = self._browser_contexts[key]
-    
+
     def page(self, url: str) -> None:
         page = self._browser_context.new_page()
         self._browser_context.page = page
@@ -87,7 +92,7 @@ class PlaywrightDriver(object):
     def goto(self, url: str) -> None:
         self._browser_context.page.goto(url)
         self._browser_context.page.wait_for_load_state()
-    
+
     def query_selector_all(self, selector: str) -> list:
         # try:
         #     self._browser_context.page.wait_for_selector(selector, timeout=10000)
@@ -99,16 +104,19 @@ class PlaywrightDriver(object):
 
     def click(self, element) -> None:
         element.click(force=True)
-    
+
     def dblclick(self, element) -> None:
         element.dblclick(force=True)
 
     def check(self, element) -> None:
         element.check()
 
-    def input(self, text: str) -> None:
+    def input(self, text: str, clear: bool = False) -> None:
+        if clear:
+            self.keyboard_press('Control+A')
+            self.keyboard_press('Delete')
         self._browser_context.page.keyboard.insert_text(text)
-    
+
     def hover(self, element) -> None:
         element.hover()
 
@@ -117,11 +125,13 @@ class PlaywrightDriver(object):
 
     def mouse_click(self, x: float, y: float) -> None:
         self._browser_context.page.mouse.click(x, y)
-    
+
     def mouse_dblclick(self, x: float, y: float) -> None:
         self._browser_context.page.mouse.dblclick(x, y)
 
     def keyboard_press(self, key: str) -> None:
+        if SYSTEM_NAME != 'Windows':
+            key = key.replace('Control', 'Meta')
         self._browser_context.page.keyboard.press(key)
 
     def mouse_move(self, x: float, y: float) -> None:
@@ -151,33 +161,44 @@ class PlaywrightDriver(object):
         if url:
             return self._browser_context.cookies(url)
         return self._browser_context.cookies()
-    
+
     def add_cookies(self, cookies: list) -> None:
         self._browser_context.add_cookies(cookies)
-    
+
     def delete_cookies(self) -> None:
         self._browser_context.clear_cookies()
 
     def evaluate(self, script: str) -> None:
         return self._browser_context.page.evaluate(script)
-    
+
     def back(self) -> None:
         self._browser_context.page.go_back()
 
     def video(self) -> str:
         return self._browser_context.page.video.path()
 
+    def url(self) -> str:
+        return self._browser_context.page.url
+
+    def title(self) -> str:
+        return self._browser_context.page.title
+
+    def iframe(self, domain):
+        self._browser_context.page.frame(url=domain)
+
     def close(self) -> str:
         self._browser_context.page.close()
         self._browser_context.close()
         self._browser.close()
+        self._browser_contexts.clear()
 
     def stop(self) -> None:
         self._playwright.stop()
+        self._browser_contexts.clear()
 
     def screenshot(self, path: str, full_page: bool = True) -> None:
         self._browser_context.page.screenshot(path=path,
-                                     full_page=full_page)
-        
+                                              full_page=full_page)
+
     def devices(self, device_name: str) -> dict:
         return self._playwright.devices[device_name]
