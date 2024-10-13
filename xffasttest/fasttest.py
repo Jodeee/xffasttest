@@ -92,6 +92,9 @@ class FastTest:
         tests_suite: list = []
         test_files: list[str] = Utils().traverse_dir(self.tests)
 
+        if not len(test_files):
+            raise Exception('Test cases cannot be empty.')
+
         for test_file in test_files:
             file_name, file_path, module = self._import_module(test_file)
             case_module = file_path.replace(f'{self.root}/', '')

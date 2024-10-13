@@ -131,7 +131,7 @@ class PlaywrightDriver(object):
         self._browser_context.page.mouse.dblclick(x, y)
 
     def keyboard_press(self, key: str) -> None:
-        if SYSTEM_NAME != 'Windows':
+        if SYSTEM_NAME.lower() == 'darwin':
             key = key.replace('Control', 'Meta')
         self._browser_context.page.keyboard.press(key)
 
