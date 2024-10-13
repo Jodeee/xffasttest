@@ -7,6 +7,11 @@ class Utils:
     @staticmethod
     def traverse_dir(directory: str) -> list:
         test_files: list = []
+
+        if os.path.isfile(directory):
+            test_files.append(directory)
+            return test_files
+
         for root, dirs, files in os.walk(directory):
             for file in files:
 

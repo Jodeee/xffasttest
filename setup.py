@@ -17,7 +17,8 @@ requires = [
     'PyYAML',
     'jinja2',
     'playwright',
-    'Faker'
+    'Faker',
+    'pyperclip'
 ]
 setuptools.setup(
     name="xffasttest",

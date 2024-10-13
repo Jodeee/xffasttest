@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import os
 import json
+import copy
 from xffasttest.common import Dict, DictEncoder
 from jinja2 import Environment, FileSystemLoader
 
@@ -20,8 +21,10 @@ class TestReports(object):
         self.skipped = len(testresult.skipped)
         self.success = self.total - self.errors - self.failures - self.skipped
         self.duration = testresult.duration
-        self.passrate = (self.success / self.total) * 100
+        self.passrate = round((self.success / (self.total - self.skipped)) * 100, 2)
         self.reports = testresult.reports
+        self.start_time = int(testresult.start_time) * 1000
+        self.end_time = int(testresult.end_time) * 1000
         self.passrate_color = 'color_default'
         for low, high, color in RANGES_COLOR:
             if low <= self.passrate <= high:
@@ -36,21 +39,29 @@ class TestReports(object):
             'duration': self.duration,
             'passrate': self.passrate,
             'reports': self.reports,
-            'passrate_color': self.passrate_color
+            'startTime': self.start_time,
+            'endTime': self.end_time,
+            'passrate_color': self.passrate_color,
+            'type': 'UI'
         }
+        self.test_cases = []
+        self.failure_test_cases = []
+        self._parse_report_(testresult.result)
         self.report_data = Dict({
             'summary': self.summary,
-            'tests': self._parse_report_(testresult.result)
+            'testCases': self.test_cases,
+            'failureTestCases': self.failure_test_cases
         })
         
     def _parse_report_(self, results: list) -> Dict:
         
-        data = {}
+        test_cases_data = {}
+        failure_test_cases_data = {}
         for result in results:
             file_name = result.file_name.strip('.py')
             key = f'{result.case_module}/{file_name}'
-            if key not in data:
-                data[key] = Dict({
+            if key not in test_cases_data:
+                test_cases_data[key] = Dict({
                     'path': key,
                     'cases': [],
                     'total': 0,
@@ -61,17 +72,29 @@ class TestReports(object):
                     'duration': 0.0,
                 })
             
-            data[key].cases.append(result.__dict__)
-            data[key]['total'] += 1
-            data[key]['duration'] += round(result.duration, 2)
+            if result.status == 1 or result.status == 2:
+                status = 'failures' if result.status == 1 else 'errors'
+                if key not in failure_test_cases_data: failure_test_cases_data[key] = copy.deepcopy(test_cases_data[key])
+                failure_test_cases_data[key].cases.append(result.__dict__)
+                failure_test_cases_data[key]['total'] += 1
+                failure_test_cases_data[key]['duration'] += result.duration
+                failure_test_cases_data[key][status] += 1
+                failure_test_cases_data[key]['passrate'] = round((failure_test_cases_data[key].success / (failure_test_cases_data[key].total - failure_test_cases_data[key].skipped)) * 100, 2)
+                failure_test_cases_data[key]['duration'] = round(failure_test_cases_data[key]['duration'], 2)
             
-            if result.status == 0: data[key]['success'] += 1
-            if result.status == 1: data[key]['failures'] += 1
-            if result.status == 2: data[key]['errors'] += 1
-            if result.status == 3: data[key]['skipped'] += 1
-            data[key]['passrate'] = (data[key].success / data[key].total) * 100
+            test_cases_data[key].cases.append(result.__dict__)
+            test_cases_data[key]['total'] += 1
+            test_cases_data[key]['duration'] += result.duration
 
-        return list(data.values())
+            if result.status == 0: test_cases_data[key]['success'] += 1
+            if result.status == 1: test_cases_data[key]['failures'] += 1
+            if result.status == 2: test_cases_data[key]['errors'] += 1
+            if result.status == 3: test_cases_data[key]['skipped'] += 1
+            test_cases_data[key]['passrate'] = round((test_cases_data[key].success / (test_cases_data[key].total - test_cases_data[key].skipped)) * 100, 2)
+            test_cases_data[key]['duration'] = round(test_cases_data[key]['duration'], 2)
+
+        self.test_cases = list(test_cases_data.values())
+        self.failure_test_cases = list(failure_test_cases_data.values())
     
         
     def generate_reports(self) -> None:

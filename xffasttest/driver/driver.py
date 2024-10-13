@@ -1,6 +1,7 @@
 import os
 import json
 import time
+import pyperclip
 from xffasttest.common import action
 from xffasttest.driver.selector import selector_formatting
 from xffasttest.driver.playwright import playwright_driver
@@ -42,7 +43,8 @@ class Driver(object):
     @staticmethod
     def get_elements(selector: str, options: dict = {}) -> None:
         selector = selector_formatting(selector, options)
-        elements = playwright_driver.query_selector_all(selector)
+        timeout = options.get('timeout', 10)
+        elements = playwright_driver.query_selector_all(selector, timeout)
         visible_elements = [element for element in elements if element.is_visible()]
         return visible_elements
 
@@ -67,6 +69,7 @@ class Driver(object):
     @staticmethod
     @action
     def not_exist(selector: str, index: int = 0, options: dict = {}) -> None:
+        options.update({'timeout': 3 })
         visible_elements = Driver.get_elements(selector, options)
         try:
             visible_elements[index]
@@ -195,8 +198,19 @@ class Driver(object):
 
     @staticmethod
     @action
-    def iframe(domain):
+    def iframe(domain: str):
         playwright_driver.iframe(domain)
+
+    @staticmethod
+    @action
+    def set_headers(headers: dict):
+        playwright_driver.set_headers(headers)
+
+    @staticmethod
+    @action
+    def paste():
+        clipboard_content = pyperclip.paste()
+        return clipboard_content
 
     @staticmethod
     def close() -> None:

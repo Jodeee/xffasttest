@@ -25,9 +25,5 @@ class Request(object):
                 }
             }
             self.request_list.append(data)
-        except json.JSONDecodeError as e:
-            pass
-        except UnicodeDecodeError as e:
-            pass
-        except AttributeError as e:
+        except Exception as e:
             pass

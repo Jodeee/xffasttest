@@ -51,6 +51,8 @@ class TestRunner(unittest.TextTestRunner):
         dt1 = datetime.fromtimestamp(start_time)
         dt2 = datetime.fromtimestamp(end_time)
         self.result.duration = round((dt2 - dt1).total_seconds(), 2)
+        self.result.start_time = start_time
+        self.result.end_time = end_time
 
         test_reports = TestReports(self.result)
         test_reports.generate_reports()

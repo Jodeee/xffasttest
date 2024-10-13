@@ -5,8 +5,8 @@ from xffasttest.driver.playwright.request import Request
 
 DEFAULT_WINDOW = 'DEFAULT_WINDOW'
 NEW_WINDOW = 'NEW_WINDOW'
-
 SYSTEM_NAME = platform.system()
+SCRIPT_TAG = 'function addClickEvent(t){t.target.addEventListener("click",function(t){lastElement&&(lastElement.style.setProperty("background-color",lastElementColor),lastElementColor=t.target.style.backgroundColor),t.target.style.setProperty("background-color","rgba(204, 51, 51, 0.5)"),lastElement=t.target})}lastElement=null,lastElementColor=null,window.onmousemove=function(t){console.log(t),addClickEvent(t)}'
 
 
 class PlaywrightDriver(object):
@@ -60,13 +60,13 @@ class PlaywrightDriver(object):
             return False
         return True
 
-    def _timed_polling(self, condition_func, selector: str, timeout=10000):
+    def _timed_polling(self, condition_func, selector: str, timeout=10):
         start_time = time.time()
         while True:
             if condition_func(selector):
                 break
             time.sleep(1)
-            if timeout is not None and ((time.time() - start_time) * 1000) > timeout:
+            if timeout is not None and ((time.time() - start_time) * 1000) > timeout * 1000:
                 break
 
     def browser(self, config: dict) -> None:
@@ -92,13 +92,14 @@ class PlaywrightDriver(object):
     def goto(self, url: str) -> None:
         self._browser_context.page.goto(url)
         self._browser_context.page.wait_for_load_state()
+        self._browser_context.page.add_script_tag(content=SCRIPT_TAG)
 
-    def query_selector_all(self, selector: str) -> list:
+    def query_selector_all(self, selector: str, timeout: int) -> list:
         # try:
         #     self._browser_context.page.wait_for_selector(selector, timeout=10000)
         # except:
         #     pass
-        self._timed_polling(self._check_elements, selector)
+        self._timed_polling(self._check_elements, selector, timeout)
 
         return self._browser_context.page.query_selector_all(selector)
 
@@ -183,8 +184,11 @@ class PlaywrightDriver(object):
     def title(self) -> str:
         return self._browser_context.page.title
 
-    def iframe(self, domain):
+    def iframe(self, domain: str):
         self._browser_context.page.frame(url=domain)
+    
+    def set_headers(self, headers: dict):
+        self._browser_context.page.set_extra_http_headers(headers)
 
     def close(self) -> str:
         self._browser_context.page.close()
