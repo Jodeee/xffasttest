@@ -2,7 +2,7 @@ import os
 import sys
 import shutil
 import unittest
-from xffasttest.utils import Utils
+from xffasttest.utils import Utils, Env
 from xffasttest.common import gvar, logger, Dict
 from xffasttest.runner import TestCase, TestRunner, TestLoader
 
@@ -46,8 +46,15 @@ class FastTest:
         self.hook_path = os.path.join(self.root, hook_path)
         config.context['record_video_dir'] = self.reports_assets
         gvar.config = config
-        if config.tests: self.tests = config.tests
-
+        # test cases
+        test_cases = Env.get_env('FASTTEST_TEST_CASES', '')
+        if test_cases:
+            self.tests = test_cases
+        elif config.tests:
+            self.tests = config.tests
+        else:
+            pass
+        
         # laod data
         data_path = os.path.join(self.root, 'data.yaml')
         if os.path.isfile(data_path):

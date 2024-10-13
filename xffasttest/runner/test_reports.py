@@ -3,7 +3,7 @@
 import os
 import json
 import copy
-from xffasttest.common import Dict, DictEncoder
+from xffasttest.common import Dict, DictEncoder, gvar
 from jinja2 import Environment, FileSystemLoader
 
 RANGES_COLOR = [
@@ -50,7 +50,8 @@ class TestReports(object):
         self.report_data = Dict({
             'summary': self.summary,
             'testCases': self.test_cases,
-            'failureTestCases': self.failure_test_cases
+            'failureTestCases': self.failure_test_cases,
+            'users': gvar.config.users
         })
         
     def _parse_report_(self, results: list) -> Dict:
