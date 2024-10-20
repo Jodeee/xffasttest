@@ -80,7 +80,6 @@ class TestReports(object):
                 failure_test_cases_data[key]['total'] += 1
                 failure_test_cases_data[key]['duration'] += result.duration
                 failure_test_cases_data[key][status] += 1
-                failure_test_cases_data[key]['passrate'] = round((failure_test_cases_data[key].success / (failure_test_cases_data[key].total - failure_test_cases_data[key].skipped)) * 100, 2)
                 failure_test_cases_data[key]['duration'] = round(failure_test_cases_data[key]['duration'], 2)
             
             test_cases_data[key].cases.append(result.__dict__)
@@ -91,8 +90,16 @@ class TestReports(object):
             if result.status == 1: test_cases_data[key]['failures'] += 1
             if result.status == 2: test_cases_data[key]['errors'] += 1
             if result.status == 3: test_cases_data[key]['skipped'] += 1
-            test_cases_data[key]['passrate'] = round((test_cases_data[key].success / (test_cases_data[key].total - test_cases_data[key].skipped)) * 100, 2)
-            test_cases_data[key]['duration'] = round(test_cases_data[key]['duration'], 2)
+            
+            passrate = 0
+            success = test_cases_data[key].success
+            total = test_cases_data[key].total
+            skipped = test_cases_data[key].skipped
+            duration = test_cases_data[key].duration
+            if total != 0 and (total - skipped) != 0:
+                passrate = round((success / (total - skipped)) * 100, 2)
+            test_cases_data[key]['passrate'] = passrate
+            test_cases_data[key]['duration'] = round(duration, 2)
 
         self.test_cases = list(test_cases_data.values())
         self.failure_test_cases = list(failure_test_cases_data.values())

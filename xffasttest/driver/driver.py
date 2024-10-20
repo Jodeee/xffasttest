@@ -79,13 +79,19 @@ class Driver(object):
 
     @staticmethod
     @action
-    def exists(selector: str, index: int = 0, options: dict = {}) -> None:
+    def exist(selector: str, index: int = 0, options: dict = {}) -> None:
         visible_elements = Driver.get_elements(selector, options)
         try:
             visible_elements[index]
             return True
         except:
             return False
+
+    @staticmethod
+    @action
+    def waitfor(state: str, selector: str, index: int = 0, options: dict = {}) -> None:
+        element = Driver.get_element(selector=selector, index=index, options=options)
+        playwright_driver.waitfor(element=element, state=state)
 
     @staticmethod
     @action
@@ -117,7 +123,8 @@ class Driver(object):
         x, y, width, height = bounding_box.values()
         offset_x = options.get('x', 0)
         offset_y = options.get('y', 0)
-        playwright_driver.mouse_click(x + offset_x, y + offset_y)
+        button =  options.get('button', 'left')
+        playwright_driver.mouse_click(x + offset_x, y + offset_y, button)
 
     @staticmethod
     @action
@@ -127,7 +134,8 @@ class Driver(object):
         x, y, width, height = bounding_box.values()
         offset_x = options.get('x', 0)
         offset_y = options.get('y', 0)
-        playwright_driver.mouse_dblclick(x + offset_x, y + offset_y)
+        button =  options.get('button', 'left')
+        playwright_driver.mouse_dblclick(x + offset_x, y + offset_y, button)
 
     @staticmethod
     @action
@@ -148,13 +156,13 @@ class Driver(object):
     @action
     def upload(file_path: str, selector: str, index: int = 0, options: dict = {}) -> None:
         element = Driver.get_element(selector=selector, index=-1)
-        playwright_driver.upload(element=element, file_path=file_path)
+        playwright_driver.upload(element=element, file=file_path)
 
     @staticmethod
     @action
     def download(file_path: str, selector: str, index: int = 0, options: dict = {}) -> str:
         element = Driver.get_element(selector=selector, index=-1)
-        return playwright_driver.download(element=element, file_path=file_path)
+        return playwright_driver.download(element=element, file=file_path)
 
     @staticmethod
     @action

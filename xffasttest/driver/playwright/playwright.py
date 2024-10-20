@@ -90,7 +90,10 @@ class PlaywrightDriver(object):
         self.goto(url)
 
     def goto(self, url: str) -> None:
-        self._browser_context.page.goto(url)
+        try:
+            self._browser_context.page.goto(url)
+        except Exception:
+            self._browser_context.page.goto(url)
         self._browser_context.page.wait_for_load_state()
         self._browser_context.page.add_script_tag(content=SCRIPT_TAG)
 
@@ -118,17 +121,20 @@ class PlaywrightDriver(object):
             self.keyboard_press('Delete')
         self._browser_context.page.keyboard.insert_text(text)
 
+    def waitfor(self, element, state: str)  -> None:
+        element.wait_for_element_state(state)
+
     def hover(self, element) -> None:
         element.hover()
 
     def get_attribute(self, name: str, element) -> None:
         return element.get_attribute(name)
 
-    def mouse_click(self, x: float, y: float) -> None:
-        self._browser_context.page.mouse.click(x, y)
+    def mouse_click(self, x: float, y: float, button: str = 'left') -> None:
+        self._browser_context.page.mouse.click(x, y, button=button)
 
-    def mouse_dblclick(self, x: float, y: float) -> None:
-        self._browser_context.page.mouse.dblclick(x, y)
+    def mouse_dblclick(self, x: float, y: float, button: str = 'left') -> None:
+        self._browser_context.page.mouse.dblclick(x, y, button=button)
 
     def keyboard_press(self, key: str) -> None:
         if SYSTEM_NAME.lower() == 'darwin':
@@ -150,13 +156,13 @@ class PlaywrightDriver(object):
         file_chooser = fc_info.value
         file_chooser.set_files(file)
 
-    def download(self, element, file_path: str) -> None:
+    def download(self, element, file: str) -> None:
         with self._browser_context.page.expect_download() as download_info:
             element.click()
         download = download_info.value
         # wait for download to complete
-        download.save_as(file_path)
-        return file_path
+        download.save_as(file)
+        return file
 
     def cookies(self, url: str) -> list:
         if url:
