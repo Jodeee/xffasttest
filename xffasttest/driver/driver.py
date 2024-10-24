@@ -251,6 +251,16 @@ class Driver(object):
             return json.dumps(data)
 
     @staticmethod
+    @action
+    def get_response(url: str) -> dict:
+        request_list = playwright_driver.request.request_list
+        request_list.reverse()
+        for request in request_list:
+            if url in request.get('url', ''):
+                return request
+        return {}
+
+    @staticmethod
     def stop() -> None:
         playwright_driver.stop()
 
