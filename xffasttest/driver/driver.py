@@ -252,13 +252,15 @@ class Driver(object):
 
     @staticmethod
     @action
-    def get_response(url: str) -> dict:
-        request_list = playwright_driver.request.request_list
-        request_list.reverse()
-        for request in request_list:
-            if url in request.get('url', ''):
-                return request
-        return {}
+    def get_response(url: str, index: int = 5) -> dict:
+        while index:
+            request_list = playwright_driver.request.request_list
+            request_list.reverse()
+            for request in request_list:
+                if url in request.get('url', ''):
+                    return request
+            time.sleep(1)
+            index -= 1
 
     @staticmethod
     def stop() -> None:
