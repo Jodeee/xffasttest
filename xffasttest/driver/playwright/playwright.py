@@ -130,6 +130,9 @@ class PlaywrightDriver(object):
     def get_attribute(self, name: str, element) -> None:
         return element.get_attribute(name)
 
+    def get_text(self, element) -> None:
+        return element.text_content()
+    
     def mouse_click(self, x: float, y: float, button: str = 'left') -> None:
         self._browser_context.page.mouse.click(x, y, button=button)
 

@@ -112,6 +112,12 @@ class Driver(object):
 
     @staticmethod
     @action
+    def get_text(selector: str, index: int = 0, options: dict = {}) -> None:
+        element = Driver.get_element(selector=selector, index=index, options=options)
+        return playwright_driver.get_text(element)
+
+    @staticmethod
+    @action
     def keyboard_press(key: str) -> None:
         playwright_driver.keyboard_press(key)
 
