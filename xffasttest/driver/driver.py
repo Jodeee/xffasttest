@@ -24,6 +24,16 @@ class Driver(object):
 
     @staticmethod
     @action
+    def set_headers(headers: dict = {}) -> None:
+        playwright_driver.set_headers(headers)
+
+    @staticmethod
+    @action
+    def reload() -> None:
+        playwright_driver.reload()
+
+    @staticmethod
+    @action
     def page(url: str) -> None:
         playwright_driver.page(url=url)
 

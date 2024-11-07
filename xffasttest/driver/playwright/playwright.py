@@ -97,6 +97,12 @@ class PlaywrightDriver(object):
         self._browser_context.page.wait_for_load_state()
         self._browser_context.page.add_script_tag(content=SCRIPT_TAG)
 
+    def set_headers(self, headers: dict) -> None:
+        self._browser_context.set_extra_http_headers(headers=headers)
+
+    def reload() -> None:
+        self._browser_context.page.reload()
+
     def query_selector_all(self, selector: str, timeout: int) -> list:
         # try:
         #     self._browser_context.page.wait_for_selector(selector, timeout=10000)
