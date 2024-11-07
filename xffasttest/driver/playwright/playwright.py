@@ -100,7 +100,7 @@ class PlaywrightDriver(object):
     def set_headers(self, headers: dict) -> None:
         self._browser_context.set_extra_http_headers(headers=headers)
 
-    def reload() -> None:
+    def reload(self) -> None:
         self._browser_context.page.reload()
 
     def query_selector_all(self, selector: str, timeout: int) -> list:
