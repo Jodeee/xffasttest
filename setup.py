@@ -18,7 +18,8 @@ requires = [
     'jinja2',
     'playwright',
     'Faker',
-    'pyperclip'
+    'pyperclip',
+    'python-dotenv'
 ]
 setuptools.setup(
     name="xffasttest",

@@ -54,7 +54,6 @@ class PlaywrightDriver(object):
         elements = self._browser_context.page.query_selector_all(selector)
         for element in elements:
             if element.is_visible() and element.is_enabled():
-                time.sleep(0.3)
                 break
         else:
             return False
@@ -65,7 +64,7 @@ class PlaywrightDriver(object):
         while True:
             if condition_func(selector):
                 break
-            time.sleep(1)
+            time.sleep(0.2)
             if timeout is not None and ((time.time() - start_time) * 1000) > timeout * 1000:
                 break
 
