@@ -2,6 +2,7 @@ import os
 import sys
 import shutil
 import unittest
+from dotenv import load_dotenv
 from xffasttest.utils import Utils, Env
 from xffasttest.common import gvar, logger, Dict
 from xffasttest.runner import TestCase, TestRunner, TestLoader
@@ -36,6 +37,11 @@ class FastTest:
             sys.path.append(_path)
         self.reports_assets = os.path.join(self.reports, 'src/assets')
         
+        # local .env file
+        env = os.path.join(self.root, '.env')
+        if os.path.isfile(env):
+            load_dotenv(env)
+
         # load config
         config_path = os.path.join(self.root, 'config.yaml')
         if not os.path.isfile(config_path):

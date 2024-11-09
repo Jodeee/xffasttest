@@ -42,7 +42,6 @@ class Utils:
                 if match:
                     env_key = match.group(1)
                     value = Env.get_env(env_key, obj)
-                    print(value)
                     return value
                 return obj
             else:
