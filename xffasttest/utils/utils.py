@@ -15,6 +15,8 @@ class Utils:
             return test_files
 
         for root, dirs, files in os.walk(directory):
+            dirs.sort()
+            files.sort()
             for file in files:
 
                 if not file.endswith('.py') or file == '__init__.py':
