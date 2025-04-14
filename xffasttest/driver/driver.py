@@ -217,6 +217,11 @@ class Driver(object):
 
     @staticmethod
     @action
+    def add_init_script(script: str = None, file_path: str = None) -> None:
+        playwright_driver.add_init_script(script, file_path=file_path)
+
+    @staticmethod
+    @action
     def sleep(s: int) -> None:
         time.sleep(s)
 

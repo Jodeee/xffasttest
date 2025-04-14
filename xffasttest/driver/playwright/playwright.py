@@ -40,6 +40,7 @@ class PlaywrightDriver(object):
         locale = config.locale or 'zh-CN'
         extra_http_headers = config.extra_http_headers
         record_video_dir = config.record_video_dir
+        user_agent = config.user_agent
         context = self._browser.new_context(ignore_https_errors=ignore_https_errors,
                                             java_script_enabled=java_script_enabled,
                                             bypass_csp=bypass_csp,
@@ -47,7 +48,8 @@ class PlaywrightDriver(object):
                                             viewport=dict(viewport) if viewport else None,
                                             locale=locale,
                                             extra_http_headers=extra_http_headers,
-                                            record_video_dir=record_video_dir)
+                                            record_video_dir=record_video_dir,
+                                            user_agent=user_agent)
         return context
 
     def _check_elements(self, selector: str) -> bool:
@@ -185,6 +187,10 @@ class PlaywrightDriver(object):
 
     def evaluate(self, script: str) -> None:
         return self._browser_context.page.evaluate(script)
+    
+    def add_init_script(self, script: str = None, file_path: str = None) -> None:
+        if script: self._browser_context.add_init_script(script)
+        if file_path: self._browser_context.add_init_script(path=file_path)
 
     def back(self) -> None:
         self._browser_context.page.go_back()
