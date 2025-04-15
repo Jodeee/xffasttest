@@ -79,9 +79,9 @@ class Driver(object):
     @staticmethod
     @action
     def not_exist(selector: str, index: int = 0, options: dict = {}) -> None:
-        options.update({'timeout': 3 })
-        visible_elements = Driver.get_elements(selector, options)
         try:
+            options.update({'timeout': 3 })
+            visible_elements = Driver.get_elements(selector, options)
             visible_elements[index]
             return False
         except:
@@ -90,8 +90,8 @@ class Driver(object):
     @staticmethod
     @action
     def exist(selector: str, index: int = 0, options: dict = {}) -> None:
-        visible_elements = Driver.get_elements(selector, options)
         try:
+            visible_elements = Driver.get_elements(selector, options)
             visible_elements[index]
             return True
         except:
@@ -171,13 +171,13 @@ class Driver(object):
     @staticmethod
     @action
     def upload(file_path: str, selector: str, index: int = 0, options: dict = {}) -> None:
-        element = Driver.get_element(selector=selector, index=-1)
+        element = Driver.get_element(selector=selector, index=index)
         playwright_driver.upload(element=element, file=file_path)
 
     @staticmethod
     @action
     def download(file_path: str, selector: str, index: int = 0, options: dict = {}) -> str:
-        element = Driver.get_element(selector=selector, index=-1)
+        element = Driver.get_element(selector=selector, index=index)
         return playwright_driver.download(element=element, file=file_path)
 
     @staticmethod
